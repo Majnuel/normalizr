@@ -1,0 +1,3 @@
+
+{"author":{"user":"latin_samurai@hotmail.com","timestamp":"2021-04-11T23:38:30.069Z","age":35,"alias":"circuit","avatar":"https://cdn.fakercloud.com/avatars/krasnoukhov_128.jpg"},"text":"ñeri"}
+{"author":{"user":"latin_samurai@hotmail.com","timestamp":"2021-04-11T23:41:26.103Z","age":12,"alias":"interface","avatar":"https://cdn.fakercloud.com/avatars/martinansty_128.jpg"},"text":"un tirito"}
