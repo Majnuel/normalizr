@@ -106,7 +106,7 @@
 
             socket.on("chat", (payload) => {
                 const newMsg = document.createElement('li')
-                newMsg.textContent = `${payload.author.user} ${payload.author.timestamp}: ${payload.text}`;
+                newMsg.textContent = `${payload.author.user} ${payload.author.timestamp}: ${payload.text.text}`;
                 ul.appendChild(newMsg)
                 chatInput.value = '';
                 console.log(payload.normalizedObj)

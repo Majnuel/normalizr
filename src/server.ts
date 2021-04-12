@@ -1,7 +1,7 @@
 import express, { Application } from "express"
 import dayjs from "dayjs"
 import fs from "fs"
-import { normalize, schema } from 'normalizr'
+import { normalize, denormalize, schema } from 'normalizr'
 const faker = require('faker')
 const app: Application = express()
 const handlebars = require('express-handlebars')
@@ -57,9 +57,11 @@ const io = require('socket.io')(http)
 //     .catch((err: any) => { console.log(err) })
 // .finally(() => knex.destroy())
 
-const text = new schema.Entity('text')
 const author = new schema.Entity("author")
-const mensaje = new schema.Entity('mensaje', {
+const text = new schema.Entity('text', {
+    author: author
+})
+const mensaje = new schema.Entity('msg', {
     author: author,
     text: text
 })
@@ -71,6 +73,8 @@ if (!fs.existsSync('./chatLog.txt')) {
 }
 
 let user: string = ''
+let obj: any = ""
+let objWithNormedMsg: any = ''
 
 io.on('connection', (socket: any) => {
     console.log('se conectó un usuario')
@@ -86,20 +90,24 @@ io.on('connection', (socket: any) => {
     socket.on("chat", (newChatMsg: any) => {
         console.log(newChatMsg)
         const timestamp = dayjs()
-        const obj = {
+        obj = {
+            id: faker.datatype.uuid(),
             author: {
+                id: faker.datatype.uuid(),
                 user: user,
                 timestamp: timestamp,
                 age: Math.floor(Math.random() * (100 - 12 + 1)) + 12,
                 alias: faker.hacker.noun(),
                 avatar: faker.image.avatar()
-            },
-            text: newChatMsg,
+            }, text: {
+                id: faker.datatype.uuid(),
+                text: newChatMsg
+            }
         }
         console.log('obj in server: ', obj)
         const normalizedObj = normalize(obj, mensaje)
         //ESTO ESTA MAL, ESTOY DUPLICANDO EL OBJETO Y LLAMANDO A FAKER OTRA VEZ
-        const objWithNormedMsg = {
+        objWithNormedMsg = {
             ...obj,
             normalizedObj: normalizedObj
         }
@@ -135,6 +143,13 @@ app.engine("hbs", handlebars({
 app.get('/test', (req, res) => {
     // res.send('Testing...')
     res.render("test", { test: true })
+})
+
+app.get('/denormalize', async (req, res) => {
+    // res.json(objWithNormedMsg.normalizedObj)
+    const denormalized = await denormalize(objWithNormedMsg.normalizedObj.result, mensaje, objWithNormedMsg.normalizedObj.entities)
+    console.log(denormalized)
+    res.json(denormalized)
 })
 
 app.use(express.urlencoded({ extended: true }))
